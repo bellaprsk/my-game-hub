@@ -39,14 +39,15 @@ public class gamehub extends JFrame {
     }
 
     static final List<Game> GAMES = List.of(
-            new Game("sudoku.java", "Sudoku", "Fácil, médio e difícil. Terminou, já vem outro!", "LÓGICA", new Color(0xa855f7), 0),
+            new Game("sudoku.java", "Sudoku", "Fácil, médio e difícil, infinito.", "LÓGICA", new Color(0xa855f7), 0),
             new Game("tetris.java", "Tetris", "Peças roxinhas, recorde salvo e hold.", "ARCADE", new Color(0xd946ef), 1),
-            new Game("wordle.java", "Wordle", "Adivinhe a palavra em inglês em 6 tentativas.", "PALAVRAS", new Color(0xec4899), 2),
+            new Game("wordle.java", "Wordle", "A palavra em inglês em 6 tentativas.", "PALAVRAS", new Color(0xec4899), 2),
             new Game("swiftle.java", "Swiftle", "Adivinhe a música da Taylor pelas pistas.", "TAYLOR", new Color(0xCBA863), 3),
-            new Game("swiftrank.java", "Swift Rank", "Ranking completo ou chaveamento por álbum.", "TAYLOR", new Color(0x8BB5D2), 4),
-            new Game("featconnect.java", "Feat Chain", "Ligue dois artistas pelos feats deles.", "MÚSICA", new Color(0x7c3aed), 5));
+            new Game("swiftrank.java", "Swift Rank", "Ranking ou chaveamento por álbum.", "TAYLOR", new Color(0x8BB5D2), 4),
+            new Game("featconnect.java", "Feat Chain", "Ligue dois artistas pelos feats deles.", "MÚSICA", new Color(0x7c3aed), 5),
+            new Game("paciencia.java", "Paciência", "Cartas roxas e rosas numa mesa pastel.", "CARTAS", new Color(0xf472b6), 6));
 
-    static final int W = 560, H = 640, BAR_H = 44;
+    static final int W = 680, H = 640, BAR_H = 44;
     final Preferences prefs = tryPrefs();
     Path folder;
 
@@ -105,13 +106,14 @@ public class gamehub extends JFrame {
         head.add(sub);
         menu.add(head, BorderLayout.NORTH);
 
-        JPanel grid = new JPanel(new GridLayout(3, 2, 12, 12));
+        JPanel grid = new JPanel(new GridLayout(3, 3, 12, 12));
         grid.setOpaque(false);
         for (Game g : GAMES) {
             GameCard c = new GameCard(g);
             cards.add(c);
             grid.add(c);
         }
+        for (int i = GAMES.size(); i < 9; i++) grid.add(new SoonCard());
         menu.add(grid, BorderLayout.CENTER);
 
         JPanel foot = new JPanel(new BorderLayout(8, 0));
@@ -446,6 +448,22 @@ public class gamehub extends JFrame {
         JOptionPane.showMessageDialog(this, p, "Ops!", JOptionPane.WARNING_MESSAGE);
     }
 
+    static class SoonCard extends JComponent {
+        @Override protected void paintComponent(Graphics g0) {
+            Graphics2D g = (Graphics2D) g0.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setColor(new Color(0x3a2a5c));
+            g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1, new float[]{6, 6}, 0));
+            g.drawRoundRect(1, 4, getWidth() - 3, getHeight() - 6, 20, 20);
+            g.setFont(new Font(FONT, Font.BOLD, 13));
+            g.setColor(new Color(0x6f5a90));
+            String s = "+ em breve";
+            g.drawString(s, (getWidth() - g.getFontMetrics().stringWidth(s)) / 2, getHeight() / 2 + 6);
+            g.dispose();
+        }
+    }
+
     class GameCard extends JComponent {
         final Game g; boolean hover;
         GameCard(Game g) {
@@ -474,12 +492,12 @@ public class gamehub extends JFrame {
                 g2.drawRoundRect(1, 4 - lift, w - 3, h - 6, 20, 20);
             }
 
-            int ix = 16, iy = 16 - lift, is = 52;
+            int ix = 14, iy = 14 - lift, is = 48;
             g2.setColor(ok ? g.color : DIM);
             g2.fillRoundRect(ix, iy, is, is, 16, 16);
             drawIcon(g2, g.icon, ix, iy, is, ok);
 
-            int tx = ix + is + 14;
+            int tx = ix + is + 12;
             g2.setFont(new Font(FONT, Font.BOLD, 9));
             g2.setColor(ok ? g.color.brighter() : MUTED);
             g2.drawString(g.tag, tx, iy + 14);
@@ -489,9 +507,9 @@ public class gamehub extends JFrame {
 
             g2.setFont(new Font(FONT, Font.PLAIN, 12));
             g2.setColor(MUTED);
-            List<String> lines = wrap(g2, ok ? g.desc : "Arquivo " + g.file + " não encontrado", w - 32);
-            int ly = iy + is + 24;
-            for (String l : lines.subList(0, Math.min(2, lines.size()))) { g2.drawString(l, 16, ly); ly += 16; }
+            List<String> lines = wrap(g2, ok ? g.desc : "Arquivo " + g.file + " não encontrado", w - 28);
+            int ly = iy + is + 22;
+            for (String l : lines.subList(0, Math.min(2, lines.size()))) { g2.drawString(l, 14, ly); ly += 16; }
 
             String badge = busy ? "Carregando..." : ok ? "Jogar ›" : "";
             if (!badge.isEmpty()) {
@@ -582,6 +600,21 @@ public class gamehub extends JFrame {
                 g.fillRoundRect(cx - 6, cy - 9, 12, 23, 3, 3);
                 g.setFont(new Font(FONT, Font.BOLD, 11));
                 g.drawString("♛", cx - 5, cy - 12);
+                break;
+            }
+            case 6: {
+                AffineTransform at = g.getTransform();
+                g.rotate(Math.toRadians(-12), cx - 4, cy);
+                g.setColor(soft);
+                g.fillRoundRect(cx - 16, cy - 15, 20, 28, 5, 5);
+                g.setTransform(at);
+                g.rotate(Math.toRadians(10), cx + 4, cy);
+                g.setColor(fg);
+                g.fillRoundRect(cx - 7, cy - 14, 20, 28, 5, 5);
+                g.setColor(ok ? new Color(0xf472b6) : DIM);
+                g.setFont(new Font(FONT, Font.BOLD, 13));
+                g.drawString("♥", cx - 2, cy + 5);
+                g.setTransform(at);
                 break;
             }
             default: {
