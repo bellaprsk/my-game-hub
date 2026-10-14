@@ -148,7 +148,7 @@ public class featconnect extends JFrame {
     final JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
     public featconnect() {
-        super("Feat Chain");
+        super("Feat Connect");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         loadStats();
@@ -744,6 +744,9 @@ public class featconnect extends JFrame {
             open();
         }
     }
+
+    public void hubStart() { field.requestFocusInWindow(); }
+    public void hubResume() { if (field.isEnabled()) field.requestFocusInWindow(); }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new featconnect().setVisible(true));

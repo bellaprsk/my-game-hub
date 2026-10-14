@@ -471,7 +471,7 @@ public class swiftrank extends JFrame {
         setLocationRelativeTo(null);
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            if (e.getID() != KeyEvent.KEY_PRESSED || !duel.isShowing() || !isActive()) return false;
+            if (e.getID() != KeyEvent.KEY_PRESSED || !duel.isShowing() || !isGameActive()) return false;
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT: choose('L'); return true;
                 case KeyEvent.VK_RIGHT: choose('R'); return true;
@@ -1003,6 +1003,11 @@ public class swiftrank extends JFrame {
             }
             @Override protected void paintTrack(Graphics g, JComponent c, Rectangle r) { g.setColor(trackColor); g.fillRect(r.x, r.y, r.width, r.height); }
         });
+    }
+
+    boolean isGameActive() {
+        Window w = SwingUtilities.getWindowAncestor(getRootPane());
+        return w != null && w.isActive();
     }
 
     public static void main(String[] args) {

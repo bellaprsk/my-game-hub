@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 public class wordle extends JFrame {
+
     static final Color BG = new Color(0x1a0b2e);
     static final Color PANEL = new Color(0x2a1650);
     static final Color EMPTY_BORDER = new Color(0x3d2468);
@@ -50,11 +51,14 @@ public class wordle extends JFrame {
             for (int i = 0; i < chunk.length(); i += 5) VALID.add(chunk.substring(i, i + 5));
     }
 
+    Game game;
+
     public wordle() {
         super("Wordle");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         Game g = new Game();
+        game = g;
         setContentPane(g);
         pack();
         setLocationRelativeTo(null);
@@ -80,12 +84,12 @@ public class wordle extends JFrame {
 
     static class Game extends JPanel {
         static final String[] ROWS_KB = {"qwertyuiop", "asdfghjkl", "<zxcvbnm>"};
-        static final String[] WIN_MSG = {"GENIUS! ♛", "ICONIC! ♛", "DIVA!", "SLAY! ♥", "NICE!", "ON THE LIMIT!"};
- 
+        static final String[] WIN_MSG = {"GÊNIA ABSOLUTA! ♛", "ICÔNICA! ♛", "ARRASOU, DIVA!", "SLAY! ♥", "MANDOU BEM!", "UFA, NO LIMITE!"};
+
         final Preferences prefs = tryPrefs();
         final List<String> deck = new ArrayList<>(ANSWER_LIST);
         int deckPos = 0;
- 
+
         String answer;
         final String[] guesses = new String[6];
         final int[][] results = new int[6][];
@@ -93,23 +97,23 @@ public class wordle extends JFrame {
         int row = 0;
         boolean over = false, won = false;
         final int[] keyState = new int[26];
- 
+
         int played, wins, streak, bestStreak;
         final int[] dist = new int[6];
- 
+
         long revealStart = -1; int revealRow = -1;
         static final int FLIP_MS = 280, STAGGER = 260;
         long shakeStart = -1;
         long popStart = -1; int popCol = -1;
         String toast = null; long toastUntil = 0;
         long overlayAt = 0;
- 
+
         final Map<Character, Rectangle> keyRects = new LinkedHashMap<>();
         final Rectangle button = new Rectangle();
         Character hoverKey = null; boolean hoverBtn = false;
- 
+
         final javax.swing.Timer anim = new javax.swing.Timer(16, e -> repaint());
- 
+
         Game() {
             setPreferredSize(new Dimension(W, H));
             setBackground(BG);
@@ -118,7 +122,7 @@ public class wordle extends JFrame {
             Collections.shuffle(deck);
             layoutKeys();
             newWord();
- 
+
             addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
                     int k = e.getKeyCode();
@@ -154,18 +158,18 @@ public class wordle extends JFrame {
             addMouseMotionListener(m);
             anim.start();
         }
- 
+
         static Preferences tryPrefs() {
-            try { return Preferences.userRoot().node("wordle"); } catch (Exception e) { return null; }
+            try { return Preferences.userRoot().node("wordle-diva"); } catch (Exception e) { return null; }
         }
- 
+
         void loadStats() {
             if (prefs == null) return;
             played = prefs.getInt("played", 0); wins = prefs.getInt("wins", 0);
             streak = prefs.getInt("streak", 0); bestStreak = prefs.getInt("best", 0);
             for (int i = 0; i < 6; i++) dist[i] = prefs.getInt("d" + i, 0);
         }
- 
+
         void saveStats() {
             if (prefs == null) return;
             try {
@@ -174,7 +178,7 @@ public class wordle extends JFrame {
                 for (int i = 0; i < 6; i++) prefs.putInt("d" + i, dist[i]);
             } catch (Exception ignored) {}
         }
- 
+
         void layoutKeys() {
             for (int r = 0; r < 3; r++) {
                 String s = ROWS_KB[r];
@@ -190,7 +194,7 @@ public class wordle extends JFrame {
                 }
             }
         }
- 
+
         void newWord() {
             if (deckPos >= deck.size()) { Collections.shuffle(deck); deckPos = 0; }
             answer = deck.get(deckPos++);
@@ -201,15 +205,15 @@ public class wordle extends JFrame {
             revealRow = -1; toast = null; hoverBtn = false;
             repaint();
         }
- 
+
         boolean revealing() {
             return revealRow >= 0 && System.currentTimeMillis() - revealStart < 4 * STAGGER + FLIP_MS;
         }
- 
+
         boolean showOverlay() {
             return over && !revealing() && System.currentTimeMillis() >= overlayAt;
         }
- 
+
         void press(char c) {
             if (over) {
                 if (c == '<' && showOverlay()) newWord();
@@ -224,13 +228,13 @@ public class wordle extends JFrame {
             }
             repaint();
         }
- 
+
         void say(String msg, int ms) { toast = msg; toastUntil = System.currentTimeMillis() + ms; }
- 
+
         void submit() {
-            if (typing.length() < 5) { say("Letter's missing!", 1300); shakeStart = System.currentTimeMillis(); return; }
-            if (!VALID.contains(typing)) { say("That word doesn't exist!", 1300); shakeStart = System.currentTimeMillis(); return; }
- 
+            if (typing.length() < 5) { say("Faltam letras, diva!", 1300); shakeStart = System.currentTimeMillis(); return; }
+            if (!VALID.contains(typing)) { say("Essa palavra não existe!", 1300); shakeStart = System.currentTimeMillis(); return; }
+
             int[] res = evaluate(typing, answer);
             guesses[row] = typing;
             results[row] = res;
@@ -256,14 +260,14 @@ public class wordle extends JFrame {
                 t.setRepeats(false); t.start();
             }
         }
- 
+
         @Override protected void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             long now = System.currentTimeMillis();
- 
+
             g.setFont(new Font(FONT, Font.BOLD, 22));
             FontMetrics fm = g.getFontMetrics();
             String a = "Wordle ", b = "Diva";
@@ -273,7 +277,7 @@ public class wordle extends JFrame {
             g.setFont(new Font(FONT, Font.BOLD, 12));
             g.setColor(MUTED);
             g.drawString("♛ " + streak, W - PAD - 34, PAD + 22);
- 
+
             int gx = (W - GRID_W) / 2;
             for (int r = 0; r < 6; r++) {
                 int shake = 0;
@@ -286,7 +290,7 @@ public class wordle extends JFrame {
                     char ch = 0; int state = -1;
                     if (guesses[r] != null) { ch = guesses[r].charAt(c); state = results[r][c]; }
                     else if (r == row && c < typing.length()) ch = typing.charAt(c);
- 
+
                     double scaleY = 1; boolean showColor = state >= 0;
                     if (state >= 0 && r == revealRow) {
                         long t = now - revealStart - c * STAGGER;
@@ -304,7 +308,7 @@ public class wordle extends JFrame {
                         long t = now - (revealStart + 4 * STAGGER + FLIP_MS) - c * 90;
                         if (t > 0 && t < 350) bounce = (int) (-Math.sin(t / 350.0 * Math.PI) * 14);
                     }
- 
+
                     AffineTransform old = g.getTransform();
                     g.translate(x + TILE / 2.0, y + TILE / 2.0 + bounce);
                     g.scale(scale, scale * Math.max(scaleY, 0.02));
@@ -329,7 +333,7 @@ public class wordle extends JFrame {
                     g.setTransform(old);
                 }
             }
- 
+
             int[] shown = keyStatesShown(now);
             for (Map.Entry<Character, Rectangle> en : keyRects.entrySet()) {
                 char c = en.getKey(); Rectangle r = en.getValue();
@@ -350,7 +354,7 @@ public class wordle extends JFrame {
                 g.drawString(label, r.x + (r.width - f3.stringWidth(label)) / 2,
                         r.y + (r.height + f3.getAscent() - f3.getDescent()) / 2);
             }
- 
+
             if (toast != null && now < toastUntil) {
                 g.setFont(new Font(FONT, Font.BOLD, 14));
                 FontMetrics f4 = g.getFontMetrics();
@@ -361,11 +365,11 @@ public class wordle extends JFrame {
                 g.setColor(BG);
                 g.drawString(toast, x + 14, y + (th + f4.getAscent() - f4.getDescent()) / 2);
             }
- 
+
             if (showOverlay()) drawOverlay(g);
             g.dispose();
         }
- 
+
         static void backspaceIcon(Graphics2D g, Rectangle r) {
             int cx = r.x + r.width / 2, cy = r.y + r.height / 2;
             int[] xs = {cx - 12, cx - 5, cx + 11, cx + 11, cx - 5};
@@ -375,11 +379,11 @@ public class wordle extends JFrame {
             g.drawLine(cx - 1, cy - 4, cx + 7, cy + 4);
             g.drawLine(cx + 7, cy - 4, cx - 1, cy + 4);
         }
- 
+
         static Color st(Color c) {
             return new Color(Math.min(255, c.getRed() + 22), Math.min(255, c.getGreen() + 22), Math.min(255, c.getBlue() + 22));
         }
- 
+
         int[] keyStatesShown(long now) {
             if (!revealing()) return keyState;
             int[] s = new int[26];
@@ -393,7 +397,7 @@ public class wordle extends JFrame {
             }
             return s;
         }
- 
+
         void drawOverlay(Graphics2D g) {
             g.setColor(new Color(20, 8, 36, 215));
             g.fillRect(0, 0, W, H);
@@ -403,15 +407,15 @@ public class wordle extends JFrame {
             g.setColor(new Color(0x4c1d95));
             g.setStroke(new BasicStroke(2));
             g.drawRoundRect(cx, cy, cw, ch, 20, 20);
- 
+
             int y = cy + 38;
             g.setFont(new Font(FONT, Font.BOLD, 20));
             g.setColor(ACCENT);
-            centered(g, won ? WIN_MSG[row - 1] : "Not this time ♥", y);
+            centered(g, won ? WIN_MSG[row - 1] : "Não foi dessa vez ♥", y);
             y += 26;
             g.setFont(new Font(FONT, Font.PLAIN, 13));
             g.setColor(MUTED);
-            centered(g, "The word was", y);
+            centered(g, "A palavra era", y);
             y += 8;
             int t = 30, gap = 5, wx = (W - (5 * t + 4 * gap)) / 2;
             for (int i = 0; i < 5; i++) {
@@ -424,12 +428,12 @@ public class wordle extends JFrame {
                 g.drawString(s, wx + i * (t + gap) + (t - f.stringWidth(s)) / 2, y + (t + f.getAscent() - f.getDescent()) / 2);
             }
             y += t + 26;
- 
+
             String[][] stats = {
-                    {String.valueOf(played), "games"},
-                    {played == 0 ? "0" : String.valueOf(Math.round(100.0 * wins / played)), "% wins"},
-                    {String.valueOf(streak), "streak"},
-                    {String.valueOf(bestStreak), "best streak"}};
+                    {String.valueOf(played), "jogos"},
+                    {played == 0 ? "0" : String.valueOf(Math.round(100.0 * wins / played)), "% vitórias"},
+                    {String.valueOf(streak), "sequência"},
+                    {String.valueOf(bestStreak), "recorde"}};
             int colW = (cw - 20) / 4;
             for (int i = 0; i < 4; i++) {
                 int sx = cx + 10 + i * colW;
@@ -443,7 +447,7 @@ public class wordle extends JFrame {
                 g.drawString(stats[i][1], sx + (colW - f.stringWidth(stats[i][1])) / 2, y + 14);
             }
             y += 30;
- 
+
             int max = 1;
             for (int d : dist) max = Math.max(max, d);
             int barX = cx + 34, barMax = cw - 34 - 26;
@@ -460,7 +464,7 @@ public class wordle extends JFrame {
                 y += 20;
             }
             y += 10;
- 
+
             int bw = 190, bh = 40;
             button.setBounds((W - bw) / 2, y, bw, bh);
             g.setColor(hoverBtn ? BTN_HOVER : BTN);
@@ -468,15 +472,19 @@ public class wordle extends JFrame {
             g.setFont(new Font(FONT, Font.BOLD, 15));
             g.setColor(TEXT);
             FontMetrics f = g.getFontMetrics();
-            String s = "Next word";
+            String s = "Próxima palavra";
             g.drawString(s, button.x + (bw - f.stringWidth(s)) / 2, button.y + (bh + f.getAscent() - f.getDescent()) / 2);
         }
- 
+
         static void centered(Graphics2D g, String s, int baseline) {
             g.drawString(s, (W - g.getFontMetrics().stringWidth(s)) / 2, baseline);
         }
     }
- 
+
+    public void hubStart() { game.requestFocusInWindow(); }
+    public void hubResume() { game.requestFocusInWindow(); }
+    public void hubStop() { game.anim.stop(); }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             wordle w = new wordle();

@@ -129,7 +129,7 @@ public class sudoku extends JFrame {
         lblTime.setText(fmtTime());
     });
 
-    sudoku() {
+    public sudoku() {
         super("Sudoku");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
@@ -181,7 +181,7 @@ public class sudoku extends JFrame {
         root.add(actions);
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            if (e.getID() != KeyEvent.KEY_PRESSED || !isActive() || overlay.isVisible()) return false;
+            if (e.getID() != KeyEvent.KEY_PRESSED || !isGameActive() || overlay.isVisible()) return false;
             onKey(e);
             return false;
         });
@@ -498,6 +498,16 @@ public class sudoku extends JFrame {
         delay.setRepeats(false);
         delay.start();
     }
+
+    boolean isGameActive() {
+        Window w = SwingUtilities.getWindowAncestor(getRootPane());
+        return w != null && w.isActive();
+    }
+
+    public void hubStart() { askLevel(); }
+    public void hubPause() { timer.stop(); }
+    public void hubResume() { if (playing) timer.start(); }
+    public void hubStop() { timer.stop(); }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

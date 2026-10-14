@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 public class swiftle extends JFrame {
+
     static final Color BG = new Color(0x1a0b2e);
     static final Color PANEL = new Color(0x2a1650);
     static final Color FIELD = new Color(0x241240);
@@ -343,26 +344,26 @@ public class swiftle extends JFrame {
     };
     static final List<Song> SONGS = new ArrayList<>();
     static { for (String s : DATA) SONGS.add(new Song(s)); }
- 
+
     static String norm(String s) {
         String n = Normalizer.normalize(s.toLowerCase(), Normalizer.Form.NFD);
         return n.replaceAll("[^a-z0-9 ]", "").replaceAll("\\s+", " ").trim();
     }
- 
+
     static final int EX = 2, CL = 1, NO = 0;
     static final String[] COLS = {"Album", "Year", "Track", "Length", "Feat.", "Type"};
- 
+
     static class Cell {
         final String text; final int state; final int dir;
         Cell(String t, int s, int d) { text = t; state = s; dir = d; }
     }
- 
+
     static Cell num(String label, int g, int a, int closeWithin, boolean naZero) {
         if (naZero && (g == 0 || a == 0)) return new Cell(label, g == a ? EX : NO, 0);
         if (g == a) return new Cell(label, EX, 0);
         return new Cell(label, Math.abs(g - a) <= closeWithin ? CL : NO, a > g ? 1 : -1);
     }
- 
+
     static Cell[] compare(Song g, Song a) {
         Cell[] c = new Cell[6];
         c[0] = new Cell(g.album, g.album.equals(a.album) ? EX : NO, 0);
@@ -376,9 +377,9 @@ public class swiftle extends JFrame {
         c[5] = new Cell(g.type, g.type.equals(a.type) ? EX : NO, 0);
         return c;
     }
- 
+
     static final int W = 560, H = 680, MAX_GUESSES = 8;
- 
+
     final Preferences prefs = tryPrefs();
     final Random rng = new Random();
     final List<Song> guesses = new ArrayList<>();
@@ -386,7 +387,7 @@ public class swiftle extends JFrame {
     boolean over = false, won = false;
     boolean easyMode = false;
     int played, wins, streak, best;
- 
+
     final JTextField field = new JTextField();
     final DefaultListModel<Song> sugModel = new DefaultListModel<>();
     final JList<Song> sugList = new JList<>(sugModel);
@@ -396,19 +397,19 @@ public class swiftle extends JFrame {
     final JLabel streakLbl = new JLabel();
     final Overlay overlay = new Overlay();
     final Pill giveUp = new Pill("Give up", MISS, 12, this::giveUp);
- 
+
     public swiftle() {
         super("Swiftle");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         loadStats();
- 
+
         JPanel root = new JPanel(new BorderLayout(0, 10));
         root.setBackground(BG);
         root.setBorder(BorderFactory.createEmptyBorder(12, 14, 14, 14));
         root.setPreferredSize(new Dimension(W, H));
         setContentPane(root);
- 
+
         JPanel head = new JPanel(new BorderLayout());
         head.setOpaque(false);
         JLabel title = new JLabel("<html><span style='color:#c084fc'>Swift</span><span style='color:#f3e8ff'>le</span></html>");
@@ -417,7 +418,7 @@ public class swiftle extends JFrame {
         streakLbl.setForeground(MUTED);
         streakLbl.setFont(new Font(FONT, Font.BOLD, 12));
         head.add(streakLbl, BorderLayout.EAST);
- 
+
         field.setFont(new Font(FONT, Font.PLAIN, 15));
         field.setBackground(FIELD);
         field.setForeground(TEXT);
@@ -428,7 +429,7 @@ public class swiftle extends JFrame {
         searchRow.setOpaque(false);
         searchRow.add(field, BorderLayout.CENTER);
         searchRow.add(giveUp, BorderLayout.EAST);
- 
+
         JPanel info = new JPanel(new BorderLayout());
         info.setOpaque(false);
         counter.setForeground(MUTED);
@@ -438,7 +439,7 @@ public class swiftle extends JFrame {
         legend.setForeground(MUTED);
         legend.setFont(new Font(FONT, Font.PLAIN, 11));
         info.add(legend, BorderLayout.EAST);
- 
+
         JPanel top = new JPanel();
         top.setOpaque(false);
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
@@ -448,14 +449,14 @@ public class swiftle extends JFrame {
             top.add(Box.createVerticalStrut(8));
         }
         root.add(top, BorderLayout.NORTH);
- 
+
         JScrollPane boardScroll = new JScrollPane(board);
         boardScroll.setBorder(null);
         boardScroll.getViewport().setBackground(BG);
         boardScroll.getVerticalScrollBar().setUnitIncrement(16);
         purpleScroll(boardScroll);
         root.add(boardScroll, BorderLayout.CENTER);
- 
+
         sugList.setBackground(PANEL);
         sugList.setForeground(TEXT);
         sugList.setFont(new Font(FONT, Font.PLAIN, 14));
@@ -466,7 +467,7 @@ public class swiftle extends JFrame {
         sugScroll.setBorder(BorderFactory.createLineBorder(BORDER, 2));
         sugScroll.setVisible(false);
         getLayeredPane().add(sugScroll, JLayeredPane.POPUP_LAYER);
- 
+
         field.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { updateSuggestions(); }
             public void removeUpdate(DocumentEvent e) { updateSuggestions(); }
@@ -496,23 +497,23 @@ public class swiftle extends JFrame {
                 if (i >= 0) guess(sugModel.get(i));
             }
         });
- 
+
         setGlassPane(overlay);
         pack();
         setLocationRelativeTo(null);
         overlay.showStart();
     }
- 
+
     static Preferences tryPrefs() {
         try { return Preferences.userRoot().node("swiftle-diva"); } catch (Exception e) { return null; }
     }
- 
+
     void loadStats() {
         if (prefs == null) return;
         played = prefs.getInt("played", 0); wins = prefs.getInt("wins", 0);
         streak = prefs.getInt("streak", 0); best = prefs.getInt("best", 0);
     }
- 
+
     void saveStats() {
         if (prefs == null) return;
         try {
@@ -520,7 +521,7 @@ public class swiftle extends JFrame {
             prefs.putInt("streak", streak); prefs.putInt("best", best);
         } catch (Exception ignored) {}
     }
- 
+
     void newSong(boolean easy) {
         easyMode = easy;
         List<Song> pool = new ArrayList<>();
@@ -537,7 +538,7 @@ public class swiftle extends JFrame {
         overlay.setVisible(false);
         field.requestFocusInWindow();
     }
- 
+
     void updateSuggestions() {
         String q = norm(field.getText());
         sugModel.clear();
@@ -559,7 +560,7 @@ public class swiftle extends JFrame {
         sugScroll.setVisible(true);
         sugScroll.revalidate();
     }
- 
+
     void guess(Song s) {
         if (over || s == null || guesses.contains(s)) return;
         guesses.add(0, s);
@@ -569,11 +570,11 @@ public class swiftle extends JFrame {
         else if (guesses.size() >= MAX_GUESSES) finish(false);
         refresh();
     }
- 
+
     void giveUp() {
         if (!over) { finish(false); refresh(); }
     }
- 
+
     void finish(boolean win) {
         over = true; won = win;
         played++;
@@ -585,7 +586,7 @@ public class swiftle extends JFrame {
         t.setRepeats(false);
         t.start();
     }
- 
+
     void refresh() {
         String c = over ? (won ? "Solved in " + guesses.size() : "Out of guesses") : "Guess " + (guesses.size() + 1) + " of " + MAX_GUESSES;
         counter.setText(c
@@ -594,14 +595,14 @@ public class swiftle extends JFrame {
         board.revalidate();
         board.repaint();
     }
- 
+
     static final int ROW_H = 92, TILE_W = 82, TILE_H = 50, TILE_GAP = 4;
- 
+
     class Board extends JComponent {
         @Override public Dimension getPreferredSize() {
             return new Dimension(W - 44, Math.max(1, guesses.size()) * (ROW_H + 8) + 30);
         }
- 
+
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -609,7 +610,7 @@ public class swiftle extends JFrame {
             g.setColor(BG);
             g.fillRect(0, 0, getWidth(), getHeight());
             int w = getWidth();
- 
+
             if (guesses.isEmpty()) {
                 g.setColor(MUTED);
                 g.setFont(new Font(FONT, Font.PLAIN, 14));
@@ -624,7 +625,7 @@ public class swiftle extends JFrame {
                 g.dispose();
                 return;
             }
- 
+
             int y = 0;
             for (Song s : guesses) {
                 Cell[] cells = compare(s, answer);
@@ -651,7 +652,7 @@ public class swiftle extends JFrame {
             }
             g.dispose();
         }
- 
+
         void tile(Graphics2D g, int x, int y, String head, Cell c) {
             g.setColor(c.state == EX ? EXACT : c.state == CL ? CLOSE : MISS);
             g.fillRoundRect(x, y, TILE_W, TILE_H, 10, 10);
@@ -674,7 +675,7 @@ public class swiftle extends JFrame {
             }
         }
     }
- 
+
     static List<String> wrap(String s, FontMetrics fm, int width, int maxLines) {
         List<String> out = new ArrayList<>();
         String line = "";
@@ -697,7 +698,7 @@ public class swiftle extends JFrame {
         }
         return out;
     }
- 
+
     class SongCell extends DefaultListCellRenderer {
         @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean sel, boolean focus) {
             Song s = (Song) value;
@@ -711,9 +712,9 @@ public class swiftle extends JFrame {
             return l;
         }
     }
- 
+
     static String esc(String s) { return s.replace("&", "&amp;").replace("<", "&lt;"); }
- 
+
     static class Pill extends JComponent {
         String text; Color base; boolean hover;
         Pill(String text, Color base, int size, Runnable action) {
@@ -742,7 +743,7 @@ public class swiftle extends JFrame {
             g.dispose();
         }
     }
- 
+
     class Overlay extends JPanel {
         final JPanel card = new JPanel() {
             @Override protected void paintComponent(Graphics g0) {
@@ -756,7 +757,7 @@ public class swiftle extends JFrame {
                 g.dispose();
             }
         };
- 
+
         Overlay() {
             setOpaque(false);
             setLayout(new GridBagLayout());
@@ -768,12 +769,12 @@ public class swiftle extends JFrame {
             addMouseMotionListener(new MouseMotionAdapter() {});
             addKeyListener(new KeyAdapter() {});
         }
- 
+
         @Override protected void paintComponent(Graphics g) {
             g.setColor(new Color(20, 8, 36, 220));
             g.fillRect(0, 0, getWidth(), getHeight());
         }
- 
+
         JLabel lbl(String html, int size, Color c, boolean bold) {
             JLabel l = new JLabel("<html><div style='text-align:center'>" + html + "</div></html>");
             l.setFont(new Font(FONT, bold ? Font.BOLD : Font.PLAIN, size));
@@ -782,20 +783,20 @@ public class swiftle extends JFrame {
             l.setAlignmentX(CENTER_ALIGNMENT);
             return l;
         }
- 
+
         void add(JComponent c, int gapAfter) {
             c.setAlignmentX(CENTER_ALIGNMENT);
             card.add(c);
             if (gapAfter > 0) card.add(Box.createVerticalStrut(gapAfter));
         }
- 
+
         Pill mode(String text, Color c, boolean easy) {
             Pill p = new Pill(text, c, 14, () -> newSong(easy));
             p.setMaximumSize(new Dimension(280, 42));
             p.setPreferredSize(new Dimension(280, 42));
             return p;
         }
- 
+
         void showStart() {
             card.removeAll();
             add(lbl("<span style='color:#c084fc'>Swift</span>le", 30, TEXT, true), 6);
@@ -805,7 +806,7 @@ public class swiftle extends JFrame {
             add(lbl("Swiftie mode includes vault, deluxe,<br>soundtrack, holiday & collab songs", 11, MUTED, false), 0);
             open();
         }
- 
+
         void showEnd() {
             card.removeAll();
             add(lbl(won ? (guesses.size() == 1 ? "FIRST TRY?! ICONIC" : "You got it, Swiftie!") : "So close!", 22, ACCENT, true), 12);
@@ -816,7 +817,7 @@ public class swiftle extends JFrame {
             add(mode(easyMode ? "Switch to Swiftie mode" : "Switch to Easy mode", MISS, !easyMode), 0);
             open();
         }
- 
+
         void open() {
             card.revalidate();
             setVisible(true);
@@ -825,7 +826,7 @@ public class swiftle extends JFrame {
             requestFocusInWindow();
         }
     }
- 
+
     static class AnswerCard extends JComponent {
         final Song s;
         AnswerCard(Song s) {
@@ -857,7 +858,7 @@ public class swiftle extends JFrame {
             g.dispose();
         }
     }
- 
+
     static void purpleScroll(JScrollPane sp) {
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         JScrollBar bar = sp.getVerticalScrollBar();
@@ -877,7 +878,10 @@ public class swiftle extends JFrame {
             @Override protected void paintTrack(Graphics g, JComponent c, Rectangle r) { g.setColor(trackColor); g.fillRect(r.x, r.y, r.width, r.height); }
         });
     }
- 
+
+    public void hubStart() { field.requestFocusInWindow(); }
+    public void hubResume() { field.requestFocusInWindow(); }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new swiftle().setVisible(true));
     }

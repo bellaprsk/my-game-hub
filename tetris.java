@@ -48,11 +48,13 @@ public class tetris extends JFrame {
     static final int H = MARGIN + WELL_H + MARGIN;
     static final String FONT = "SansSerif";
 
+    Game game;
+
     public tetris() {
         super("Tetris");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
-        Game game = new Game();
+        game = new Game();
         setContentPane(game);
         pack();
         setLocationRelativeTo(null);
@@ -363,7 +365,6 @@ public class tetris extends JFrame {
 
             int ox = MARGIN, oy = MARGIN;
 
-            // poço
             g.setColor(FRAME);
             g.fill(new RoundRectangle2D.Float(ox - 4, oy - 4, WELL_W + 8, WELL_H + 8, 14, 14));
             g.setColor(WELL);
@@ -535,6 +536,11 @@ public class tetris extends JFrame {
             g.drawString(s, x + (w - g.getFontMetrics().stringWidth(s)) / 2, baseline);
         }
     }
+
+    public void hubStart() { game.requestFocusInWindow(); }
+    public void hubPause() { game.autoPause(); }
+    public void hubResume() { game.requestFocusInWindow(); }
+    public void hubStop() { game.loop.stop(); }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
