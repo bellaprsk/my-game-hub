@@ -44,12 +44,13 @@ public class gamehub extends JFrame {
             new Game("wordle.java", "Wordle", "A palavra em inglês em 6 tentativas.", "PALAVRAS", new Color(0xec4899), 2),
             new Game("swiftle.java", "Swiftle", "Adivinhe a música da Taylor pelas pistas.", "TAYLOR", new Color(0xCBA863), 3),
             new Game("swiftrank.java", "Swift Rank", "Ranking ou chaveamento por álbum.", "TAYLOR", new Color(0x8BB5D2), 4),
-            new Game("featconnect.java", "Feat Chain", "Ligue dois artistas pelos feats deles.", "MÚSICA", new Color(0x7c3aed), 5),
+            new Game("featchain.java", "Feat Chain", "Ligue dois artistas pelos feats deles.", "MÚSICA", new Color(0x7c3aed), 5),
             new Game("paciencia.java", "Paciência", "Cartas roxas e rosas numa mesa pastel.", "CARTAS", new Color(0xf472b6), 6),
             new Game("game2048.java", "2048", "Junte os números até o 2048.", "NÚMEROS", new Color(0x9333ea), 7),
             new Game("campominado.java", "Campo Minado", "Fácil, médio e difícil. Cuidado!", "LÓGICA", new Color(0x6d28d9), 8),
-            new Game("hitorflop.java", "Hit ou Flop", "Qual chegou mais alto na Billboard?", "MÚSICA", new Color(0xdb2777), 9),
-            new Game("conexoes.java", "Conexões", "16 artistas, 4 grupos escondidos.", "MÚSICA", new Color(0xa855f7), 10));
+            new Game("hitouflop.java", "Hit ou Flop", "Qual chegou mais alto na Billboard?", "MÚSICA", new Color(0xdb2777), 9),
+            new Game("conexoes.java", "Conexões", "Artistas, músicas e álbuns em 4 grupos.", "MÚSICA", new Color(0xa855f7), 10),
+            new Game("guesswho.java", "Cara a Cara", "Adivinhe o famoso com perguntas.", "FAMOSOS", new Color(0xec4899), 11));
 
     static final int W = 900, H = 640, BAR_H = 44;
     final Preferences prefs = tryPrefs();
@@ -662,6 +663,17 @@ public class gamehub extends JFrame {
                     g.setColor(k % 2 == 0 ? fg : soft);
                     g.fillRoundRect(cx - 16, cy - 16 + k * 8, 32, 6, 4, 4);
                 }
+                break;
+            }
+            case 11: {
+                for (int k = 0; k < 3; k++) {
+                    int bx = cx - 19 + k * 13;
+                    g.setColor(k == 1 ? fg : soft);
+                    g.fillRoundRect(bx, cy - 13, 11, 26, 4, 4);
+                }
+                g.setColor(ok ? new Color(0xec4899) : DIM);
+                g.setFont(new Font(FONT, Font.BOLD, 12));
+                g.drawString("?", cx - 3, cy + 5);
                 break;
             }
             default: {
