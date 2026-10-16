@@ -45,9 +45,13 @@ public class gamehub extends JFrame {
             new Game("swiftle.java", "Swiftle", "Adivinhe a música da Taylor pelas pistas.", "TAYLOR", new Color(0xCBA863), 3),
             new Game("swiftrank.java", "Swift Rank", "Ranking ou chaveamento por álbum.", "TAYLOR", new Color(0x8BB5D2), 4),
             new Game("featconnect.java", "Feat Chain", "Ligue dois artistas pelos feats deles.", "MÚSICA", new Color(0x7c3aed), 5),
-            new Game("paciencia.java", "Paciência", "Cartas roxas e rosas numa mesa pastel.", "CARTAS", new Color(0xf472b6), 6));
+            new Game("paciencia.java", "Paciência", "Cartas roxas e rosas numa mesa pastel.", "CARTAS", new Color(0xf472b6), 6),
+            new Game("game2048.java", "2048", "Junte os números até o 2048.", "NÚMEROS", new Color(0x9333ea), 7),
+            new Game("campominado.java", "Campo Minado", "Fácil, médio e difícil. Cuidado!", "LÓGICA", new Color(0x6d28d9), 8),
+            new Game("hitorflop.java", "Hit ou Flop", "Qual chegou mais alto na Billboard?", "MÚSICA", new Color(0xdb2777), 9),
+            new Game("conexoes.java", "Conexões", "16 artistas, 4 grupos escondidos.", "MÚSICA", new Color(0xa855f7), 10));
 
-    static final int W = 680, H = 640, BAR_H = 44;
+    static final int W = 900, H = 640, BAR_H = 44;
     final Preferences prefs = tryPrefs();
     Path folder;
 
@@ -106,14 +110,14 @@ public class gamehub extends JFrame {
         head.add(sub);
         menu.add(head, BorderLayout.NORTH);
 
-        JPanel grid = new JPanel(new GridLayout(3, 3, 12, 12));
+        JPanel grid = new JPanel(new GridLayout(3, 4, 12, 12));
         grid.setOpaque(false);
         for (Game g : GAMES) {
             GameCard c = new GameCard(g);
             cards.add(c);
             grid.add(c);
         }
-        for (int i = GAMES.size(); i < 9; i++) grid.add(new SoonCard());
+        for (int i = GAMES.size(); i < 12; i++) grid.add(new SoonCard());
         menu.add(grid, BorderLayout.CENTER);
 
         JPanel foot = new JPanel(new BorderLayout(8, 0));
@@ -615,6 +619,49 @@ public class gamehub extends JFrame {
                 g.setFont(new Font(FONT, Font.BOLD, 13));
                 g.drawString("♥", cx - 2, cy + 5);
                 g.setTransform(at);
+                break;
+            }
+            case 7: {
+                g.setFont(new Font(FONT, Font.BOLD, 9));
+                int b = 15;
+                String[] n = {"2", "4", "8", "16"};
+                for (int k = 0; k < 4; k++) {
+                    int bx = cx - b - 1 + (k % 2) * (b + 2), by = cy - b - 1 + (k / 2) * (b + 2);
+                    g.setColor(k == 3 ? fg : soft);
+                    g.fillRoundRect(bx, by, b, b, 4, 4);
+                    g.setColor(k == 3 ? (ok ? new Color(0x9333ea) : DIM) : fg);
+                    FontMetrics fm = g.getFontMetrics();
+                    g.drawString(n[k], bx + (b - fm.stringWidth(n[k])) / 2, by + 11);
+                }
+                break;
+            }
+            case 8: {
+                g.setColor(fg);
+                double r = 9;
+                g.setStroke(new BasicStroke(2.2f));
+                for (int k = 0; k < 4; k++) {
+                    double a = Math.PI / 4 * k;
+                    g.draw(new Line2D.Double(cx - Math.cos(a) * 14, cy - Math.sin(a) * 14, cx + Math.cos(a) * 14, cy + Math.sin(a) * 14));
+                }
+                g.fill(new Ellipse2D.Double(cx - r, cy - r, r * 2, r * 2));
+                g.setColor(ok ? new Color(0x6d28d9) : DIM);
+                g.fill(new Ellipse2D.Double(cx - 5, cy - 6, 5, 5));
+                break;
+            }
+            case 9: {
+                g.setColor(fg);
+                g.fillPolygon(new int[]{cx - 12, cx - 2, cx - 22}, new int[]{cy - 14, cy - 2, cy - 2}, 3);
+                g.fillRect(cx - 15, cy - 3, 6, 15);
+                g.setColor(soft);
+                g.fillPolygon(new int[]{cx + 12, cx + 2, cx + 22}, new int[]{cy + 14, cy + 2, cy + 2}, 3);
+                g.fillRect(cx + 9, cy - 12, 6, 15);
+                break;
+            }
+            case 10: {
+                for (int k = 0; k < 4; k++) {
+                    g.setColor(k % 2 == 0 ? fg : soft);
+                    g.fillRoundRect(cx - 16, cy - 16 + k * 8, 32, 6, 4, 4);
+                }
                 break;
             }
             default: {
